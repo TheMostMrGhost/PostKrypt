@@ -1,2 +1,3 @@
-(test
- (name PostKrypt))
+(executable
+ (name PostKrypt)
+ (libraries picture))

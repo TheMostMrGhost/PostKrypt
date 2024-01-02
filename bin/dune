@@ -1,4 +1,4 @@
 (executable
- (public_name PostKrypt)
  (name main)
- (libraries PostKrypt))
+ (public_name PostKrypt.main)
+ (libraries picture))

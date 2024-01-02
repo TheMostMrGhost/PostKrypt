@@ -1,2 +1,3 @@
 (library
- (name PostKrypt))
+ (name picture)
+ (public_name PostKrypt.picture))

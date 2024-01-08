@@ -25,6 +25,8 @@ module Transform : sig
     val sum : transform -> transform -> transform
     val translate : Picture.vec -> transform
     val rotate : Picture.r -> transform
+    (* Val for a full circle rotation, in degrees. *)
+    val fullCircle : Picture.r
 
     (* Application of transformations *)
     val trpoint : transform -> Picture.point -> Picture.point

@@ -1,4 +1,5 @@
 (executable
  (name main)
  (public_name PostKrypt.main)
- (libraries utils))
+ (libraries PostKrypt.lib)
+ (flags :standard -w -a))

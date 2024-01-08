@@ -20,9 +20,14 @@ end
 module Transform : sig
     type transform
 
+    (* Supported transformations *)
     val id : transform
     val sum : transform -> transform -> transform
     val translate : Picture.vec -> transform
     val rotate : Picture.r -> transform
 
+    (* Application of transformations *)
+    val trpoint : transform -> Picture.point -> Picture.point
+    val trvec : transform -> Picture.vec -> Picture.vec
+    val transform : transform -> Picture.picture -> Picture.picture
 end

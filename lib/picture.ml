@@ -10,6 +10,7 @@ module Picture = struct
     type picture = pic list
 
     let ( +| ) (x1, y1) (x2, y2) = (x1 +. x2, y1 +. y2)
+    let ( -| ) (x1, y1) (x2, y2) = (x1 -. x2, y1 -. y2)
     let ( *| ) scale (x, y) = (scale *. x, scale *. y)
 
     let string_of_pic x = match x with
@@ -65,4 +66,43 @@ module Transform = struct
     let rotate angle : transform =
         (Rotation angle) :: id
 
+    let rotate p angle  =
+        let (x, y) = p in
+        (x *. cos angle -. y *. sin angle, x *. sin angle +. y *. cos angle)
+
+    let translate p (v : vec) : point =
+        match v with
+        | (x, y) -> y -| x +| p
+
+    let apply_simple_transform (t : simple_transform) (p : point) : point =
+        match t with
+        | Translation v -> translate p v
+        | Rotation angle -> rotate p angle 
+
+    let trpoint (t : transform) (p : point) : point =
+        let rec helper_tr (t : transform) (p : point) : point =
+            match t with
+            | [] -> p
+            | hd :: tl -> helper_tr tl (apply_simple_transform hd p)
+        in
+        helper_tr t p
+
+    let trvec (t : transform) (v : vec) : vec =
+        let rec helper_tr (t : transform) (v : vec) : vec =
+            match t with
+            | [] -> v
+            | hd :: tl ->
+                let ((start_x, start_y), (end_x, end_y)) = v in
+                let transformed_start = apply_simple_transform hd (start_x, start_y) in
+                let transformed_end = apply_simple_transform hd (end_x, end_y) in
+                helper_tr tl (transformed_start, transformed_end)
+        in
+        helper_tr t v
+
+    let transform (t : transform) (pic : picture) : picture =
+        List.map (function
+            | Empty -> Empty
+            | Vector v -> Vector (trvec t v)
+            | Point p -> Point (trpoint t p)
+        ) pic
 end

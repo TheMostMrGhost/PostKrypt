@@ -1,1 +1,1 @@
-val readPic : unit -> string list
+val readPic : unit -> Lexer.token list

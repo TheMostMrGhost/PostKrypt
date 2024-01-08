@@ -15,6 +15,10 @@ type operation =
 
 type stack = float list
 
+type token =
+    | Operation of operation
+    | Number of float
+
 type path = Picture.point list
 
 type state = {
@@ -47,12 +51,15 @@ let apply op stack =
         | _ -> failwith "Not enough elements on the stack")
     | _ -> stack
 
-let parse_token token =
-    match token with
-    | "add" -> Arithmetic_op Add
-    | "sub" -> Arithmetic_op Sub
-    | "mul" -> Arithmetic_op Mul
-    | "div" -> Arithmetic_op Div
-    | _ -> Arithmetic_op Empty
-
 let push elem stack = elem :: stack
+
+let parse_token string_token =
+    match string_token with
+    | "add" -> Operation (Arithmetic_op Add)
+    | "sub" -> Operation (Arithmetic_op Sub)
+    | "mul" -> Operation (Arithmetic_op Mul)
+    | "div" -> Operation (Arithmetic_op Div)
+    | "moveto" -> Operation Move_to
+    | "lineto" -> Operation Line_to
+    | "closepath" -> Operation Close_path
+    | _ -> Number (float_of_string string_token)

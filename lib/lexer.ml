@@ -1,7 +1,6 @@
 open Picture
 
 type arithmetic_operation = 
-    | Empty
     | Add
     | Sub
     | Mul
@@ -93,4 +92,3 @@ let token_to_string token =
     | Operation Line_to ->  "lineto"
     | Operation Close_path ->  "closepath"
     | Number n ->  (string_of_float n)
-    | _ ->  "Unknown token"

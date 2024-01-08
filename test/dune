@@ -1,3 +1,8 @@
 (executable
- (name PostKrypt)
- (libraries PostKrypt.lib))
+  (name PostKrypt)
+  (libraries PostKrypt.lib)
+  (flags :standard -w -a))
+
+(rule
+  (alias runtest)
+  (action (run ./PostKrypt.exe)))

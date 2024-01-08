@@ -1,3 +1,5 @@
 (library
  (name lib)
- (public_name PostKrypt.lib))
+ (public_name PostKrypt.lib)
+; FIXME:
+ (flags :standard -w -a))

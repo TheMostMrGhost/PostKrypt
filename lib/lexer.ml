@@ -1,6 +1,7 @@
 open Picture
 
 type arithmetic_operation = 
+    | Empty
     | Add
     | Sub
     | Mul
@@ -12,39 +13,46 @@ type operation =
     | Line_to
     | Close_path
 
-type stack_elem = 
-    | Number of float
-    | Operator of arithmetic_operation
+type stack = float list
 
-type stack = stack_elem list
+type path = Picture.point list
 
 type state = {
     stack : stack;
-    current_point : Picture.point;
+    current_point : Picture.point option;
+    current_path : path;
     current_picture : Picture.picture;
 }
 
-let current_point = Picture.make_point 0.0 0.0
+let current_state = {
+    stack = [];
+    current_point = None;
+    current_path = [];
+    current_picture = Picture.empty;
+}
 
-let apply op stack = 
-    match stack with
-    | Number x :: Number y :: stack' -> 
-        let result = 
-            match op with
-            | Add -> x +. y
-            | Sub -> x -. y
-            | Mul -> x *. y
-            | Div -> if y = 0.0 then failwith "Division by zero" else x /. y
-        in
-        Number result :: stack'
-    | _ -> failwith "Invalid stack"
+let apply op stack =
+    match op with
+    | Arithmetic_op Add -> (match stack with
+        | x :: y :: rest -> (x +. y) :: rest
+        | _ -> failwith "Not enough elements on the stack")
+    | Arithmetic_op Sub -> (match stack with
+        | x :: y :: rest -> (x -. y) :: rest
+        | _ -> failwith "Not enough elements on the stack")
+    | Arithmetic_op Mul -> (match stack with
+        | x :: y :: rest -> (x *. y) :: rest
+        | _ -> failwith "Not enough elements on the stack")
+    | Arithmetic_op Div -> (match stack with
+        | x :: y :: rest -> (x /. y) :: rest
+        | _ -> failwith "Not enough elements on the stack")
+    | _ -> stack
 
 let parse_token token =
     match token with
-    | "add" -> Operator Add
-    | "sub" -> Operator Sub
-    | "mul" -> Operator Mul
-    | "div" -> Operator Div
-    | _ -> Number (float_of_string token)
+    | "add" -> Arithmetic_op Add
+    | "sub" -> Arithmetic_op Sub
+    | "mul" -> Arithmetic_op Mul
+    | "div" -> Arithmetic_op Div
+    | _ -> Arithmetic_op Empty
 
 let push elem stack = elem :: stack

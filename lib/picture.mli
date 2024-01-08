@@ -17,6 +17,7 @@ module Picture : sig
     val scale : r -> picture -> picture
     val make_point: float -> float -> point
     val make_vec: point -> point -> vec
+    val empty : picture
 end
 
 module Transform : sig

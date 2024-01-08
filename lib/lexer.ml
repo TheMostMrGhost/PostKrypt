@@ -63,3 +63,21 @@ let parse_token string_token =
     | "lineto" -> Operation Line_to
     | "closepath" -> Operation Close_path
     | _ -> Number (float_of_string string_token)
+
+let process_token token stack =
+    match token with
+    | Operation op -> apply op stack
+    | Number n -> push n stack
+
+(* TODO: delete in an actual implementation *)
+let token_to_string token =
+    match token with
+    | Operation (Arithmetic_op Add) ->  "add"
+    | Operation (Arithmetic_op Sub) ->  "sub"
+    | Operation (Arithmetic_op Mul) ->  "mul"
+    | Operation (Arithmetic_op Div) ->  "div"
+    | Operation Move_to ->  "moveto"
+    | Operation Line_to ->  "lineto"
+    | Operation Close_path ->  "closepath"
+    | Number n ->  (string_of_float n)
+    | _ ->  "Unknown token"

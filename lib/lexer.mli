@@ -1,13 +1,15 @@
 type operation
 type stack
 type token
+type state
 
-val apply : operation -> stack -> stack
-val push : float -> stack -> stack
+val apply : operation -> state -> state
+val push : float -> state -> state
 val parse_token : string -> token 
-val process_token : token -> stack -> stack
-val process_tokens : token list -> float list
+val process_token : token -> state -> state
+val process_tokens : token list -> state
 val process_string_tokens : string list -> float list
+val get_stack : state -> float list
 
 (* TODO: just for debugging *)
 val token_to_string : token -> string

@@ -34,23 +34,54 @@ let current_state = {
     current_picture = Picture.empty;
 }
 
-let apply op stack =
+let apply op state =
     match op with
-    | Arithmetic_op Add -> (match stack with
-        | x :: y :: rest -> (x +. y) :: rest
-        | _ -> failwith "Not enough elements on the stack")
-    | Arithmetic_op Sub -> (match stack with
-        | x :: y :: rest -> (x -. y) :: rest
-        | _ -> failwith "Not enough elements on the stack")
-    | Arithmetic_op Mul -> (match stack with
-        | x :: y :: rest -> (x *. y) :: rest
-        | _ -> failwith "Not enough elements on the stack")
-    | Arithmetic_op Div -> (match stack with
-        | x :: y :: rest -> (x /. y) :: rest
-        | _ -> failwith "Not enough elements on the stack")
-    | _ -> stack
+    | Arithmetic_op Add -> 
+        let stack = state.stack in
+        let new_stack = (List.hd stack) +. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
+        { state with stack = new_stack }
+    | Arithmetic_op Sub -> 
+        let stack = state.stack in
+        let new_stack = (List.hd stack) -. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
+        { state with stack = new_stack }
+    | Arithmetic_op Mul -> 
+        let stack = state.stack in
+        let new_stack = (List.hd stack) *. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
+        { state with stack = new_stack }
+    | Arithmetic_op Div -> 
+        let stack = state.stack in
+        let new_stack = (List.hd stack) /. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
+        { state with stack = new_stack }
+    | Move_to -> 
+        let stack = state.stack in
+        let new_stack = List.tl stack in
+        let new_point = match state.stack with
+            | x :: y :: _ -> Some (Picture.make_point x y)
+            | _ -> None
+        in
+        { state with stack = new_stack; current_point = new_point }
+    | Line_to ->
+        let stack = state.stack in
+        let new_stack = List.tl stack in
+        let new_path = match state.current_point with
+            | Some point -> point :: state.current_path
+            | None -> state.current_path
+        in
+        let new_point = match state.stack with
+            | x :: y :: _ -> Some (Picture.make_point x y)
+            | _ -> None
+        in
+        { state with stack = new_stack; current_point = new_point; current_path = new_path }
+    | Close_path ->
+        let stack = state.stack in
+        let new_stack = List.tl stack in
+        let new_path = match state.current_point with
+            | Some point -> point :: state.current_path
+            | None -> state.current_path
+        in
+        { state with stack = new_stack; current_point = None; current_path = new_path }
 
-let push elem stack = elem :: stack
+let push elem stack = { stack with stack = elem :: stack.stack }
 
 let parse_token string_token =
     match string_token with
@@ -75,11 +106,13 @@ let process_tokens tokens =
         | [] -> stack
         | token :: rest -> process_tokens_rec rest (process_token token stack)
     in
-    process_tokens_rec tokens []
+    process_tokens_rec tokens current_state
+
+let get_stack state = state.stack
 
 let process_string_tokens string_tokens =
     let tokens = List.map parse_token string_tokens in
-    process_tokens tokens
+    get_stack (process_tokens tokens)
 
 (* TODO: delete in an actual implementation *)
 let token_to_string token =
@@ -92,3 +125,4 @@ let token_to_string token =
     | Operation Line_to ->  "lineto"
     | Operation Close_path ->  "closepath"
     | Number n ->  (string_of_float n)
+

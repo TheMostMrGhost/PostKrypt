@@ -13,6 +13,7 @@ module Picture = struct
     let ( -| ) (x1, y1) (x2, y2) = (x1 -. x2, y1 -. y2)
     let ( *| ) scale (x, y) = (scale *. x, scale *. y)
 
+
     let string_of_pic x = match x with
         | Empty -> ""
         | Vector ((x1, y1), (x2, y2)) -> Printf.sprintf "Vector ((%f, %f), (%f, %f))" x1 y1 x2 y2
@@ -49,6 +50,8 @@ module Picture = struct
     let make_vec (start_x, start_y) (end_x, end_y) = ((start_x, start_y), (end_x, end_y))
 
     let empty = []
+
+    let add_to_picture pic picture = pic :: picture
 end
 
 module Transform = struct

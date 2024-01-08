@@ -11,6 +11,7 @@ module Picture : sig
     val ( *| ) : r -> point -> point
     val string_of_pic : pic -> string
     val string_of_picture : picture -> string
+    val string_of_point : point -> string
     val line : point -> point -> picture
     val rectangle : r -> r -> picture
     val (+++) : picture -> picture -> picture

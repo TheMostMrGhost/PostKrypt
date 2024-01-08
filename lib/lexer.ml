@@ -109,6 +109,12 @@ let process_tokens tokens =
     process_tokens_rec tokens current_state
 
 let get_stack state = state.stack
+let get_point_or_default state =
+  match state.current_point with
+  | Some point -> point
+  | None -> Picture.make_point 0.0 0.0  (* Default point at (0,0) *)
+
+let get_current_point state = get_point_or_default state
 
 let process_string_tokens string_tokens =
     let tokens = List.map parse_token string_tokens in

@@ -1,3 +1,5 @@
+open Picture
+
 type operation
 type stack
 type token
@@ -10,6 +12,7 @@ val process_token : token -> state -> state
 val process_tokens : token list -> state
 val process_string_tokens : string list -> float list
 val get_stack : state -> float list
+val get_current_point : state -> Picture.point
 
 (* TODO: just for debugging *)
 val token_to_string : token -> string

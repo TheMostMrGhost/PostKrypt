@@ -19,6 +19,9 @@ module Picture = struct
         | Vector ((x1, y1), (x2, y2)) -> Printf.sprintf "Vector ((%f, %f), (%f, %f))" x1 y1 x2 y2
         | Point (x, y) -> Printf.sprintf "Point (%f, %f)" x y
 
+    let string_of_point x = match x with
+        | (x, y) -> Printf.sprintf "(%f, %f)" x y
+
     let string_of_picture x = match x with
         | [] -> "[]"
         | hd :: tl -> "[" ^ (string_of_pic hd) ^ (List.fold_left (fun acc x -> acc ^ "; " ^ (string_of_pic x)) "" tl) ^ "]"

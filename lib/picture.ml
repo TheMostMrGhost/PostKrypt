@@ -44,6 +44,9 @@ module Picture = struct
         | Vector ((x1, y1), (x2, y2)) -> Vector ((factor *| (x1, y1)), (factor *| (x2, y2)))
         | Point (x, y) -> Point (factor *| (x, y))
     ) pic
+
+    let make_point (x : float) (y : float) : point = (x, y)
+    let make_vec (start_x, start_y) (end_x, end_y) = ((start_x, start_y), (end_x, end_y))
 end
 
 module Transform = struct

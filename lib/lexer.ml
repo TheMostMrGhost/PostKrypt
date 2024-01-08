@@ -1,15 +1,30 @@
-type operation = 
+open Picture
+
+type arithmetic_operation = 
     | Add
     | Sub
     | Mul
     | Div
 
-type seq_elem = 
+type operation =
+    | Arithmetic_op of arithmetic_operation
+    | Move_to
+    | Line_to
+    | Close_path
+
+type stack_elem = 
     | Number of float
-    | Operator of operation
+    | Operator of arithmetic_operation
 
+type stack = stack_elem list
 
-type stack = seq_elem list
+type state = {
+    stack : stack;
+    current_point : Picture.point;
+    current_picture : Picture.picture;
+}
+
+let current_point = Picture.make_point 0.0 0.0
 
 let apply op stack = 
     match stack with
@@ -19,7 +34,7 @@ let apply op stack =
             | Add -> x +. y
             | Sub -> x -. y
             | Mul -> x *. y
-            | Div -> x /. y
+            | Div -> if y = 0.0 then failwith "Division by zero" else x /. y
         in
         Number result :: stack'
     | _ -> failwith "Invalid stack"
@@ -32,3 +47,4 @@ let parse_token token =
     | "div" -> Operator Div
     | _ -> Number (float_of_string token)
 
+let push elem stack = elem :: stack

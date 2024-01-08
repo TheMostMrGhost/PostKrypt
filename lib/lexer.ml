@@ -69,6 +69,19 @@ let process_token token stack =
     | Operation op -> apply op stack
     | Number n -> push n stack
 
+
+let process_tokens tokens =
+    let rec process_tokens_rec tokens stack =
+        match tokens with
+        | [] -> stack
+        | token :: rest -> process_tokens_rec rest (process_token token stack)
+    in
+    process_tokens_rec tokens []
+
+let process_string_tokens string_tokens =
+    let tokens = List.map parse_token string_tokens in
+    process_tokens tokens
+
 (* TODO: delete in an actual implementation *)
 let token_to_string token =
     match token with

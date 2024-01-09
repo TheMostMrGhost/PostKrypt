@@ -12,7 +12,7 @@ let speclist = [
 
 let usage_msg = "Usage: graf [-n scale] [-d] [-f filename]\n"
 
-let read_input () =
+let readPic () =
   match !filename with
   | Some file -> 
       let ic = open_in file in

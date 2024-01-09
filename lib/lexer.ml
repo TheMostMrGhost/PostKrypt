@@ -52,6 +52,7 @@ let add_path_to_picture path picture =
     | None -> add_points_to_picture path.points picture
 
 let flush_path state =
+if state.current_point = None then raise (Failure "No current point") else
     match state.current_path.start_point with
     | None -> state
     | Some start_point ->
@@ -166,12 +167,6 @@ let process_tokens tokens =
     flush_path (process_tokens_rec tokens current_state)
 
 let get_stack state = state.stack
-let get_point_or_default state =
-    match state.current_point with
-    | Some point -> point
-    | None -> Picture.make_point 0.0 0.0  (* Default point at (0,0) *)
-
-let get_current_point state = get_point_or_default state
 
 let get_current_picture state = state.current_picture
 

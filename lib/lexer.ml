@@ -53,6 +53,15 @@ let add_path_to_picture path picture =
     | Some start_point -> add_points_to_picture ( start_point :: path.points) picture
     | None -> add_points_to_picture path.points picture
 
+let flush_path state =
+  let new_picture = add_path_to_picture state.current_path state.current_picture in
+  { state with 
+    stack = (match state.stack with | _::tl -> tl | [] -> []);
+    current_point = None; 
+    current_path = {points = []; start_point = None}; 
+    current_picture = Picture.(state.current_picture +++ new_picture)
+  }
+
 let apply op state =
     match op with
     | Arithmetic_op Add -> 
@@ -103,16 +112,7 @@ let apply op state =
             current_path = new_path;
         }
     | Close_path ->
-        let new_picture = add_path_to_picture state.current_path state.current_picture in
-        { state with 
-            (* Take tail if it exists *)
-            stack = tl state.stack;
-            (* TODO: should this be none or start of the path? *)
-            current_point = None; 
-            current_path = {points = []; start_point = None}; 
-            (* Add new picture to existing picture using +++*)
-            current_picture = Picture.(state.current_picture +++ new_picture)
-        }
+        flush_path state
 
 let push elem stack = { stack with stack = elem :: stack.stack }
 
@@ -139,7 +139,7 @@ let process_tokens tokens =
         | [] -> state
         | token :: rest -> process_tokens_rec rest (process_token token state)
     in
-    process_tokens_rec tokens current_state
+    flush_path (process_tokens_rec tokens current_state)
 
 let get_stack state = state.stack
 let get_point_or_default state =

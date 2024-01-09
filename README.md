@@ -28,3 +28,20 @@ Currently supported:
     - points
     - vectors
     - pictures
+
+## Viewing output
+For opening a PostKrypt file you can use a PostScript reader, like
+[ghostscript](https://www.ghostscript.com/).
+The command for opening example file, like this one
+```postscript
+newpath      
+0 0 moveto   
+0 100 lineto 
+100 100 lineto 
+100 0 lineto 
+closepath    
+
+stroke      
+showpage   
+```
+is `gs <file_name>`.

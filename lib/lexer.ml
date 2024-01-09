@@ -109,7 +109,14 @@ let apply op state =
         }
     | Close_path ->
         flush_path state
-    | Rotate -> Picture.rotate (List.hd state.stack) state.current_picture
+    (* | Rotate -> { state with  *)
+    (*     Transform.transform (Transform.rotate (List.hd state.stack)) *)
+    (*     state.current_picture } *)
+        | Rotate -> { state with 
+            stack = List.tl state.stack;
+            current_picture = Transform.transform (Transform.rotate (Picture.make_r (List.hd state.stack))) state.current_picture
+        }
+
 
     | Translate -> state
 

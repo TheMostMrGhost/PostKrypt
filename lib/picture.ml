@@ -50,6 +50,7 @@ module Picture = struct
 
     let make_point (x : float) (y : float) : point = (x, y)
     let make_vec (start_x, start_y) (end_x, end_y) = ((start_x, start_y), (end_x, end_y))
+    let make_r (x : float) : r = x
 
     let point_to_pic pt = Point pt
     let vec_to_pic vec = Vector vec

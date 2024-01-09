@@ -4,7 +4,10 @@ module Picture : sig
     type r2
     type point
     type vec
-    type pic    
+    type pic = 
+        | Empty
+        | Vector of vec 
+        | Point of point
     type picture
 
     val ( +| ) : point -> point -> point
@@ -16,7 +19,7 @@ module Picture : sig
     val rectangle : r -> r -> picture
     val (+++) : picture -> picture -> picture
     val scale : r -> picture -> picture
-    val make_point: float -> float -> point
+    val make_point: float -> float -> pic
     val make_vec: point -> point -> vec
     val empty : picture
     val add_to_picture : pic -> picture -> picture

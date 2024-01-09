@@ -18,11 +18,14 @@ type token =
     | Operation of operation
     | Number of float
 
-type path = Picture.point list
+type path = {
+    points : Picture.pic list;
+    start_point : Picture.pic option;
+}
 
 type state = {
     stack : stack;
-    current_point : Picture.point option;
+    current_point : Picture.pic option;
     current_path : path;
     current_picture : Picture.picture;
 }
@@ -30,9 +33,25 @@ type state = {
 let current_state = {
     stack = [];
     current_point = None;
-    current_path = [];
+    current_path = { points = []; start_point = None };
     current_picture = Picture.empty;
 }
+
+let tl list =
+    match list with
+    | [] -> []
+    | _ :: rest -> rest
+
+let add_path_to_picture path picture =
+    let rec add_points_to_picture points picture =
+        match points with
+        | [] -> picture
+        | Picture.Point p :: rest -> add_points_to_picture rest (Picture.add_to_picture (Point p) picture)
+        | _ -> picture  
+    in
+    match path.start_point with
+    | Some start_point -> add_points_to_picture ( start_point :: path.points) picture
+    | None -> add_points_to_picture path.points picture
 
 let apply op state =
     match op with
@@ -53,33 +72,41 @@ let apply op state =
         let new_stack = (List.hd stack) /. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
         { state with stack = new_stack }
     | Move_to -> 
-        let stack = state.stack in
-        let new_stack = List.tl stack in
-        let new_point = match state.stack with
-            | x :: y :: _ -> Some (Picture.make_point x y)
-            | _ -> None
+        let x, y = match state.stack with
+            | x :: y :: _ -> x, y
+            | _ -> 0.0, 0.0  (* Default values if stack doesn't have enough elements *)
         in
-        { state with stack = new_stack; current_point = new_point }
+        let new_point = Picture.make_point x y in
+        { state with 
+          stack = List.tl (List.tl state.stack); 
+          current_point = Some (new_point);  
+          current_path = {points = []; start_point = Some (new_point)}
+        }
     | Line_to ->
-        let stack = state.stack in
-        let new_stack = List.tl stack in
-        let new_path = match state.current_point with
-            | Some point -> point :: state.current_path
-            | None -> state.current_path
+        let x, y = match state.stack with
+            | x :: y :: _ -> x, y
+            | _ -> raise (Failure "Not enough elements in stack")
         in
-        let new_point = match state.stack with
-            | x :: y :: _ -> Some (Picture.make_point x y)
-            | _ -> None
-        in
-        { state with stack = new_stack; current_point = new_point; current_path = new_path }
+        let new_point = Picture.make_point x y in
+        let new_path = {
+            state.current_path with 
+            points = new_point :: state.current_path.points  (* Append new point *)
+        } in
+        { state with 
+          stack = List.tl (List.tl state.stack); 
+          current_point = Some (new_point); 
+          current_path = new_path 
+        }
     | Close_path ->
-        let stack = state.stack in
-        let new_stack = List.tl stack in
-        let new_path = match state.current_point with
-            | Some point -> point :: state.current_path
-            | None -> state.current_path
-        in
-        { state with stack = new_stack; current_point = None; current_path = new_path }
+        let new_picture = add_path_to_picture state.current_path state.current_picture in
+        { state with 
+            (* Take tail if it exists *)
+          stack = tl state.stack;
+          current_point = None; 
+          current_path = {points = []; start_point = None}; 
+            (* Add new picture to existing picture using +++*)
+          current_picture = Picture.(state.current_picture +++ new_picture)
+        }
 
 let push elem stack = { stack with stack = elem :: stack.stack }
 

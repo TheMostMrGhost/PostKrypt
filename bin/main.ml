@@ -23,7 +23,7 @@ let process_and_print_stack_float stack =
 let () =
   let words = Lib.Inputpic.readPic () in
     (* Print this: Lib.Lexer.process_tokens words; *)
-    let stack = Lib.Lexer.process_tokens words in
-      process_and_print_stack_float stack;
+    let state = Lib.Lexer.process_tokens words in
+    process_and_print_stack_float (Lib.Lexer.get_stack state);
 
 

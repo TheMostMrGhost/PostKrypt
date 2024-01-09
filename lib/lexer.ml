@@ -22,7 +22,7 @@ type token =
 
 type path = {
     points : Picture.pic list;
-    start_point : Picture.pic option;
+    start_point : Picture.point option;
 }
 
 type state = {
@@ -48,16 +48,27 @@ let add_path_to_picture path picture =
         | Picture.Empty :: rest -> add_points_to_picture rest picture
     in
     match path.start_point with
-    | Some start_point -> add_points_to_picture ( start_point :: path.points) picture
+    | Some start_point -> add_points_to_picture (Picture.point_to_pic start_point :: path.points) picture
     | None -> add_points_to_picture path.points picture
 
 let flush_path state =
-    let new_picture = add_path_to_picture state.current_path state.current_picture in
-    { state with
-        stack = (match state.stack with | _::tl -> tl | [] -> []);
-        current_path = {points = []; start_point = None}; 
-        current_picture = Picture.(state.current_picture +++ new_picture)
-    }
+    match state.current_path.start_point with
+    | None -> state
+    | Some start_point ->
+    let new_path = {
+        state.current_path with 
+        points = match state.current_point with
+            | Some point -> Picture.vec_to_pic (Picture.make_vec point start_point) :: state.current_path.points  (* Append new point *)
+            | None -> raise (Failure "No current point")
+        (* points = (Vector  ):: state.current_path.points  (* Append new point *) *)
+    } in
+  let new_picture = add_path_to_picture new_path state.current_picture in
+  { 
+    stack = (match state.stack with | _::tl -> tl | [] -> []);
+    current_point = state.current_path.start_point;
+    current_path = {points = []; start_point = state.current_path.start_point}; 
+    current_picture = Picture.(state.current_picture +++ new_picture)
+  }
 
 let apply op state =
     match op with
@@ -87,7 +98,7 @@ let apply op state =
         let new_point = Picture.make_point x y in
         { stack = List.tl (List.tl state.stack); 
             current_point = Some (new_point);  
-            current_path = {points = []; start_point = Some (Picture.point_to_pic new_point)};
+            current_path = {points = []; start_point = Some new_point};
             current_picture =Picture.(state.current_picture +++ add_path_to_picture state.current_path state.current_picture)
         }
     | Line_to ->
@@ -106,6 +117,7 @@ let apply op state =
         { state with 
             stack = List.tl (List.tl state.stack); 
             current_path = new_path;
+            current_point = Some new_point;
         }
     | Close_path ->
         flush_path state
@@ -116,7 +128,10 @@ let apply op state =
     | Translate -> { state with 
         stack = List.tl (List.tl state.stack);
         current_picture = match state.current_point with
-            | Some point -> Transform.transform (Transform.translate (Picture.make_vec point (Picture.make_point (List.hd state.stack) (List.hd (List.tl state.stack))))) state.current_picture
+            | Some point -> Transform.transform (Transform.translate
+                (Picture.make_vec point (Picture.make_point (List.hd
+                    state.stack) (List.hd (List.tl state.stack)))))
+                state.current_picture
             | None -> raise (Failure "No current point")
     }
 

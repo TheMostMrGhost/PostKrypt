@@ -109,16 +109,16 @@ let apply op state =
         }
     | Close_path ->
         flush_path state
-    (* | Rotate -> { state with  *)
-    (*     Transform.transform (Transform.rotate (List.hd state.stack)) *)
-    (*     state.current_picture } *)
-        | Rotate -> { state with 
-            stack = List.tl state.stack;
-            current_picture = Transform.transform (Transform.rotate (Picture.make_r (List.hd state.stack))) state.current_picture
-        }
-
-
-    | Translate -> state
+    | Rotate -> { state with 
+        stack = List.tl state.stack;
+        current_picture = Transform.transform (Transform.rotate (Picture.make_r (List.hd state.stack))) state.current_picture
+    }
+    | Translate -> { state with 
+        stack = List.tl (List.tl state.stack);
+        current_picture = match state.current_point with
+            | Some point -> Transform.transform (Transform.translate (Picture.make_vec point (Picture.make_point (List.hd state.stack) (List.hd (List.tl state.stack))))) state.current_picture
+            | None -> raise (Failure "No current point")
+    }
 
 
 let push elem stack = { stack with stack = elem :: stack.stack }

@@ -58,6 +58,17 @@ module Picture = struct
     let empty = []
 
     let add_to_picture pic picture = pic :: picture
+
+    let picture_to_postscript picture =
+        let rec helper_pic picture = match picture with
+            | [] -> ""
+            | hd :: tl -> match hd with
+                | Empty -> helper_pic tl
+                | Vector ((x1, y1), (x2, y2)) -> Printf.sprintf "%f %f moveto %f %f lineto\n" x1 y1 x2 y2 ^ helper_pic tl
+                (* TODO: is this lineto correct? *)
+                | Point (x, y) -> Printf.sprintf "%f %f moveto\n" x y ^ helper_pic tl
+        in
+        Printf.sprintf "%%!PS \n300 400 translate\n%sstroke showpage\n%%EOF" (helper_pic picture)
 end
 
 module Transform = struct

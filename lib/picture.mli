@@ -25,6 +25,7 @@ module Picture : sig
     val add_to_picture : pic -> picture -> picture
     val point_to_pic : point -> pic
     val vec_to_pic : vec -> pic
+    val picture_to_postscript : picture -> string
 end
 
 module Transform : sig

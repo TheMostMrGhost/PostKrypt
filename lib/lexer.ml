@@ -47,7 +47,7 @@ let add_path_to_picture path picture =
         match points with
         | [] -> picture
         | Picture.Point p :: rest -> add_points_to_picture rest (Picture.add_to_picture (Point p) picture)
-        | _ -> picture  
+        | Picture.Vector v :: rest -> add_points_to_picture rest (Picture.add_to_picture (Vector v) picture)
     in
     match path.start_point with
     | Some start_point -> add_points_to_picture ( start_point :: path.points) picture
@@ -69,18 +69,21 @@ let apply op state =
         { state with stack = new_stack }
     | Arithmetic_op Div -> 
         let stack = state.stack in
-        let new_stack = (List.hd stack) /. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
+        let new_stack = match List.hd (List.tl stack) with
+            | 0.0 -> raise (Failure "Division by zero")
+            | _ -> (List.hd stack) /. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
         { state with stack = new_stack }
     | Move_to -> 
         let x, y = match state.stack with
             | x :: y :: _ -> x, y
-            | _ -> 0.0, 0.0  (* Default values if stack doesn't have enough elements *)
+            | _ -> raise (Failure "Not enough elements in stack")
         in
         let new_point = Picture.make_point x y in
         { state with 
-          stack = List.tl (List.tl state.stack); 
-          current_point = Some (new_point);  
-          current_path = {points = []; start_point = Some (Picture.point_to_pic new_point)}
+            stack = List.tl (List.tl state.stack); 
+            current_point = Some (new_point);  
+            current_path = {points = []; start_point = Some (Picture.point_to_pic new_point)};
+            current_picture =Picture.(state.current_picture +++ add_path_to_picture state.current_path state.current_picture)
         }
     | Line_to ->
         let x, y = match state.stack with
@@ -96,19 +99,19 @@ let apply op state =
             (* points = (Vector  ):: state.current_path.points  (* Append new point *) *)
         } in
         { state with 
-          stack = List.tl (List.tl state.stack); 
-          current_point = Some (new_point); 
-          current_path = new_path 
+            stack = List.tl (List.tl state.stack); 
+            current_path = new_path;
         }
     | Close_path ->
         let new_picture = add_path_to_picture state.current_path state.current_picture in
         { state with 
             (* Take tail if it exists *)
-          stack = tl state.stack;
-          current_point = None; 
-          current_path = {points = []; start_point = None}; 
+            stack = tl state.stack;
+            (* TODO: should this be none or start of the path? *)
+            current_point = None; 
+            current_path = {points = []; start_point = None}; 
             (* Add new picture to existing picture using +++*)
-          current_picture = Picture.(state.current_picture +++ new_picture)
+            current_picture = Picture.(state.current_picture +++ new_picture)
         }
 
 let push elem stack = { stack with stack = elem :: stack.stack }
@@ -131,18 +134,18 @@ let process_token token stack =
 
 
 let process_tokens tokens =
-    let rec process_tokens_rec tokens stack =
+    let rec process_tokens_rec tokens state =
         match tokens with
-        | [] -> stack
-        | token :: rest -> process_tokens_rec rest (process_token token stack)
+        | [] -> state
+        | token :: rest -> process_tokens_rec rest (process_token token state)
     in
     process_tokens_rec tokens current_state
 
 let get_stack state = state.stack
 let get_point_or_default state =
-  match state.current_point with
-  | Some point -> point
-  | None -> Picture.make_point 0.0 0.0  (* Default point at (0,0) *)
+    match state.current_point with
+    | Some point -> point
+    | None -> Picture.make_point 0.0 0.0  (* Default point at (0,0) *)
 
 let get_current_point state = get_point_or_default state
 

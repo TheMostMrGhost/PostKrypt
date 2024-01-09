@@ -51,6 +51,7 @@ module Picture = struct
     let make_point (x : float) (y : float) : point = (x, y)
     let make_vec (start_x, start_y) (end_x, end_y) = ((start_x, start_y), (end_x, end_y))
     let make_r (x : float) : r = x
+    let r_of_int (x : int) : r = float_of_int x
 
     let point_to_pic pt = Point pt
     let vec_to_pic vec = Vector vec
@@ -59,16 +60,24 @@ module Picture = struct
 
     let add_to_picture pic picture = pic :: picture
 
-    let picture_to_postscript picture =
-        let rec helper_pic picture = match picture with
+    let vector_to_postscript (x1, y1) (x2, y2) =
+        Printf.sprintf "%f %f moveto %f %f lineto\n" x1 y1 x2 y2
+
+    let picture_to_postscript (scale_factor : int) picture =
+        let scaled_picture = scale (r_of_int scale_factor) picture in
+        let rec helper_pic pic =
+            match pic with
             | [] -> ""
-            | hd :: tl -> match hd with
-                | Empty -> helper_pic tl
-                | Vector ((x1, y1), (x2, y2)) -> Printf.sprintf "%f %f moveto %f %f lineto\n" x1 y1 x2 y2 ^ helper_pic tl
-                (* TODO: is this lineto correct? *)
-                | Point (x, y) -> Printf.sprintf "%f %f moveto\n" x y ^ helper_pic tl
+            | hd :: tl -> 
+                let command_string = match hd with
+                    | Empty -> ""
+                    | Vector ((x1, y1), (x2, y2)) -> vector_to_postscript (x1, y1) (x2, y2)
+                    | Point (x, y) -> vector_to_postscript (x, y) (x, y)
+                in
+                command_string ^ helper_pic tl
         in
-        Printf.sprintf "%%!PS \n300 400 translate\n%sstroke showpage\n%%EOF" (helper_pic picture)
+        Printf.sprintf "%%!PS\n300 400 translate\n%sstroke showpage\n%%EOF" (helper_pic scaled_picture)
+
 end
 
 module Transform = struct

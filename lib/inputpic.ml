@@ -22,7 +22,7 @@ let read_input () =
           read_lines (acc ^ line ^ "\n")
         with End_of_file -> close_in ic; acc
       in
-      read_lines ""
+      read_lines "", !scale
   | None -> 
       let rec read_stdin acc =
         try
@@ -30,4 +30,4 @@ let read_input () =
           read_stdin (acc ^ line ^ "\n")
         with End_of_file -> acc
       in
-      read_stdin ""
+      read_stdin "", !scale

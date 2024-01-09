@@ -21,12 +21,13 @@ module Picture : sig
     val scale : r -> picture -> picture
     val make_point: float -> float -> point
     val make_vec: point -> point -> vec
-    val make_r: float -> r
+    val make_r : float -> r
+    val r_of_int : int -> r
     val empty : picture
     val add_to_picture : pic -> picture -> picture
     val point_to_pic : point -> pic
     val vec_to_pic : vec -> pic
-    val picture_to_postscript : picture -> string
+    val picture_to_postscript : int -> picture -> string
 end
 
 module Transform : sig

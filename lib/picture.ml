@@ -49,8 +49,11 @@ module Picture = struct
         | Point (x, y) -> Point (factor *| (x, y))
     ) pic
 
-    let make_point (x : float) (y : float) : pic = Point (x, y)
+    let make_point (x : float) (y : float) : point = (x, y)
     let make_vec (start_x, start_y) (end_x, end_y) = ((start_x, start_y), (end_x, end_y))
+
+    let point_to_pic pt = Point pt
+    let vec_to_pic vec = Vector vec
 
     let empty = []
 

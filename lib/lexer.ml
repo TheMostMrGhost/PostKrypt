@@ -25,7 +25,7 @@ type path = {
 
 type state = {
     stack : stack;
-    current_point : Picture.pic option;
+    current_point : Picture.point option;
     current_path : path;
     current_picture : Picture.picture;
 }
@@ -80,7 +80,7 @@ let apply op state =
         { state with 
           stack = List.tl (List.tl state.stack); 
           current_point = Some (new_point);  
-          current_path = {points = []; start_point = Some (new_point)}
+          current_path = {points = []; start_point = Some (Picture.point_to_pic new_point)}
         }
     | Line_to ->
         let x, y = match state.stack with
@@ -90,7 +90,10 @@ let apply op state =
         let new_point = Picture.make_point x y in
         let new_path = {
             state.current_path with 
-            points = new_point :: state.current_path.points  (* Append new point *)
+            points = match state.current_point with
+                | Some point -> Picture.vec_to_pic (Picture.make_vec point new_point) :: state.current_path.points  (* Append new point *)
+                | None -> raise (Failure "No current point")
+            (* points = (Vector  ):: state.current_path.points  (* Append new point *) *)
         } in
         { state with 
           stack = List.tl (List.tl state.stack); 
@@ -142,6 +145,8 @@ let get_point_or_default state =
   | None -> Picture.make_point 0.0 0.0  (* Default point at (0,0) *)
 
 let get_current_point state = get_point_or_default state
+
+let get_current_picture state = state.current_picture
 
 let process_string_tokens string_tokens =
     let tokens = List.map parse_token string_tokens in

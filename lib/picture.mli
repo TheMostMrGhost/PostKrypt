@@ -19,10 +19,12 @@ module Picture : sig
     val rectangle : r -> r -> picture
     val (+++) : picture -> picture -> picture
     val scale : r -> picture -> picture
-    val make_point: float -> float -> pic
+    val make_point: float -> float -> point
     val make_vec: point -> point -> vec
     val empty : picture
     val add_to_picture : pic -> picture -> picture
+    val point_to_pic : point -> pic
+    val vec_to_pic : vec -> pic
 end
 
 module Transform : sig

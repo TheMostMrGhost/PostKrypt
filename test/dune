@@ -1,7 +1,6 @@
 (executable
   (name PostKrypt)
-  (libraries PostKrypt.lib)
-  (flags :standard -w -a))
+  (libraries PostKrypt.lib))
 
 (rule
   (alias runtest)

@@ -11,6 +11,8 @@ type operation =
     | Move_to
     | Line_to
     | Close_path
+    | Rotate
+    | Translate
 
 type stack = float list
 
@@ -37,30 +39,25 @@ let current_state = {
     current_picture = Picture.empty;
 }
 
-let tl list =
-    match list with
-    | [] -> []
-    | _ :: rest -> rest
-
 let add_path_to_picture path picture =
     let rec add_points_to_picture points picture =
         match points with
         | [] -> picture
         | Picture.Point p :: rest -> add_points_to_picture rest (Picture.add_to_picture (Point p) picture)
         | Picture.Vector v :: rest -> add_points_to_picture rest (Picture.add_to_picture (Vector v) picture)
+        | Picture.Empty :: rest -> add_points_to_picture rest picture
     in
     match path.start_point with
     | Some start_point -> add_points_to_picture ( start_point :: path.points) picture
     | None -> add_points_to_picture path.points picture
 
 let flush_path state =
-  let new_picture = add_path_to_picture state.current_path state.current_picture in
-  { state with 
-    stack = (match state.stack with | _::tl -> tl | [] -> []);
-    current_point = None; 
-    current_path = {points = []; start_point = None}; 
-    current_picture = Picture.(state.current_picture +++ new_picture)
-  }
+    let new_picture = add_path_to_picture state.current_path state.current_picture in
+    { state with
+        stack = (match state.stack with | _::tl -> tl | [] -> []);
+        current_path = {points = []; start_point = None}; 
+        current_picture = Picture.(state.current_picture +++ new_picture)
+    }
 
 let apply op state =
     match op with
@@ -88,8 +85,7 @@ let apply op state =
             | _ -> raise (Failure "Not enough elements in stack")
         in
         let new_point = Picture.make_point x y in
-        { state with 
-            stack = List.tl (List.tl state.stack); 
+        { stack = List.tl (List.tl state.stack); 
             current_point = Some (new_point);  
             current_path = {points = []; start_point = Some (Picture.point_to_pic new_point)};
             current_picture =Picture.(state.current_picture +++ add_path_to_picture state.current_path state.current_picture)
@@ -113,6 +109,10 @@ let apply op state =
         }
     | Close_path ->
         flush_path state
+    | Rotate -> Picture.rotate (List.hd state.stack) state.current_picture
+
+    | Translate -> state
+
 
 let push elem stack = { stack with stack = elem :: stack.stack }
 
@@ -125,6 +125,8 @@ let parse_token string_token =
     | "moveto" -> Operation Move_to
     | "lineto" -> Operation Line_to
     | "closepath" -> Operation Close_path
+    | "rotate" -> Operation Rotate
+    | "translate" -> Operation Translate
     | _ -> Number (float_of_string string_token)
 
 let process_token token stack =
@@ -166,4 +168,6 @@ let token_to_string token =
     | Operation Line_to ->  "lineto"
     | Operation Close_path ->  "closepath"
     | Number n ->  (string_of_float n)
+    | Operation Rotate -> "rotate"
+    | Operation Translate -> "translate"
 

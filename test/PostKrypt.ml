@@ -5,9 +5,6 @@ let readPic input_string =
   let tokens = String.split_on_char ' ' input_string in
   List.map Lexer.parse_token tokens
 
-let print_float_list float_list =
-  List.iter (fun x -> Printf.printf "%f\n" x) float_list
-
 let () =
 (*     assert (List.length (Lib.Lexer.get_stack (Lib.Lexer.process_tokens ( readPic "0 7 9 add div"))) > 0); *)
 (*     (* Addition tests *) *)

@@ -1,4 +1,3 @@
-open Lexer
 open Arg
 
 let filename = ref None

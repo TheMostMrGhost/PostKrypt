@@ -45,3 +45,33 @@ stroke
 showpage   
 ```
 is `gs <file_name>`.
+
+# Usage example
+## Basic usage
+The program accepts a set of operations and numbers and based on them creates a drawing in the PostScript format.
+The output is delivered to `stdout`. The output should then be displayed using
+a PostScript reader, like [ghostscript](https://www.ghostscript.com/).
+Assuming that you have a file `input.in`, containing valid set of commands, you can use it as
+```bash
+cat input.in | ./_build/default/bin/main.exe > my_out.out 
+gs my_out.out
+```
+where an example `input.in` file might look like this
+```postscript
+0 0 moveto
+0 100 lineto
+100 100 lineto
+100 0 lineto
+closepath
+```
+<!-- TODO: sample picture-->
+You can also type commands directly into the programme.
+Instead of piping, you can use `-f <filename>` flag to load the file directly. The above example wouod look like 
+```bash
+./_build/default/bin/main.exe -f input.in > my_out.out 
+```
+
+
+Additional flag `-g` allows for displaying the picture direcly.
+
+### Commands

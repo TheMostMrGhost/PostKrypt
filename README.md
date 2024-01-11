@@ -5,6 +5,24 @@ manipulation. Inspired by and compatible with PostScript, PostKrypt is an
 assignment for the "Języki i narzędzia programowania" course at MIM UW for the
 academic year 2023/2024.
 
+# Installation
+## Prerequisits
+- `ocaml` toolkit, can be found [here](https://opam.ocaml.org/doc/Install.html)
+- `dune` build system. [Dune](https://dune.build/)
+- local copy of the project
+
+## Setup
+1. Navigate to the main folder.
+2. Install necessary dependencies via
+```bash
+opam install graphics
+```
+3. Build the project
+```bash
+dune build --profile release
+```
+
+
 ## Project structure
 Project contains the following modules.
 

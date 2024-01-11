@@ -63,6 +63,9 @@ module Picture = struct
     let vector_to_postscript (x1, y1) (x2, y2) =
         Printf.sprintf "%f %f moveto %f %f lineto\n" x1 y1 x2 y2
 
+    let point_to_postscript (x, y) =
+        Printf.sprintf "%f %f moveto\n" x y
+
     let picture_to_postscript (scale_factor : int) picture =
         let scaled_picture = scale (r_of_int scale_factor) picture in
         let rec helper_pic pic =
@@ -72,7 +75,7 @@ module Picture = struct
                 let command_string = match hd with
                     | Empty -> ""
                     | Vector ((x1, y1), (x2, y2)) -> vector_to_postscript (x1, y1) (x2, y2)
-                    | Point (x, y) -> vector_to_postscript (x, y) (x, y)
+                    | Point (x, y) -> point_to_postscript (x, y)
                 in
                 command_string ^ helper_pic tl
         in
@@ -143,4 +146,40 @@ module Transform = struct
             | Vector v -> Vector (trvec t v)
             | Point p -> Point (trpoint t p)
         ) pic
+end
+
+open Graphics
+
+module Graph = struct
+    (* Draws a single point at (x, y) *)
+    let ref_x = -300
+    let ref_y = -400
+
+    let draw_point (x : float) (y : float) : unit =
+        let ix = int_of_float x in
+        let iy = int_of_float y in
+        moveto (ix - ref_x) (iy - ref_y);
+        lineto (ix - ref_x) (iy - ref_y)
+
+    (* Draws a line (vector) from (x1, y1) to (x2, y2) *)
+    let draw_vector ((x1, y1), (x2, y2)) : unit =
+        moveto (int_of_float x1 - ref_x) (int_of_float y1 - ref_y);
+        lineto (int_of_float x2 - ref_x) (int_of_float y2 - ref_y)
+
+
+    (* Draws a picture *)
+    (* Processes the picture and draws each element *)
+    let picture_to_graph (scale_factor : int) picture =
+        let scaled_picture = Picture.scale (Picture.r_of_int scale_factor) picture in
+        let rec helper_pic pic =
+            match pic with
+            | [] -> ()
+            | hd :: tl -> 
+                (match hd with
+                    | Picture.Empty -> ()
+                    | Picture.Vector ((x1, y1), (x2, y2)) -> draw_vector ((x1, y1), (x2, y2))
+                    | Picture.Point (x, y) -> draw_point x y);
+                helper_pic tl
+        in
+        helper_pic scaled_picture
 end

@@ -46,3 +46,14 @@ module Transform : sig
     val trvec : transform -> Picture.vec -> Picture.vec
     val transform : transform -> Picture.picture -> Picture.picture
 end
+
+module Graph : sig
+  (* Draws a single point at (x, y) *)
+  val draw_point : float -> float -> unit
+
+  (* Draws a line (vector) from (x1, y1) to (x2, y2) *)
+  val draw_vector : (float * float) * (float * float) -> unit
+
+  (* Processes the picture and draws each element *)
+  val picture_to_graph : int -> Picture.picture -> unit
+end

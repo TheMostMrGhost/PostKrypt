@@ -110,7 +110,6 @@ let apply op state =
             points = match state.current_point with
                 | Some point -> Picture.vec_to_pic (Picture.make_vec point new_point) :: state.current_path.points  (* Append new point *)
                 | None -> raise (Failure "No current point")
-            (* points = (Vector  ):: state.current_path.points  (* Append new point *) *)
         } in
         { state with
             stack = List.tl (List.tl state.stack);
@@ -120,7 +119,7 @@ let apply op state =
     | Close_path ->
         flush_path state
     | Rotate ->
-        let flushed_state = flush_path state in  (* First, flush the current state *)
+        let flushed_state = flush_path state in
         let rotation_angle = Picture.make_r (List.hd flushed_state.stack) in
         let rotated_picture = Transform.transform (Transform.rotate rotation_angle) flushed_state.current_picture in
         { flushed_state with
@@ -128,7 +127,7 @@ let apply op state =
             current_picture = rotated_picture
         }
     | Translate ->
-        let flushed_state = flush_path state in  (* First, flush the current state *)
+        let flushed_state = flush_path state in
         let translation_vector = match flushed_state.current_point with
             | Some point -> Picture.make_vec point (Picture.make_point (List.hd flushed_state.stack) (List.hd (List.tl flushed_state.stack)))
             | None -> raise (Failure "No current point")
@@ -177,7 +176,6 @@ let process_string_tokens string_tokens =
     let tokens = List.map parse_token string_tokens in
     get_stack (process_tokens tokens)
 
-(* TODO: delete in an actual implementation *)
 let token_to_string token =
     match token with
     | Operation (Arithmetic_op Add) ->  "add"

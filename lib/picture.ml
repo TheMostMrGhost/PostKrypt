@@ -151,7 +151,6 @@ end
 open Graphics
 
 module Graph = struct
-    (* Draws a single point at (x, y) *)
     let ref_x = -300
     let ref_y = -400
 
@@ -161,14 +160,10 @@ module Graph = struct
         moveto (ix - ref_x) (iy - ref_y);
         lineto (ix - ref_x) (iy - ref_y)
 
-    (* Draws a line (vector) from (x1, y1) to (x2, y2) *)
     let draw_vector ((x1, y1), (x2, y2)) : unit =
         moveto (int_of_float x1 - ref_x) (int_of_float y1 - ref_y);
         lineto (int_of_float x2 - ref_x) (int_of_float y2 - ref_y)
 
-
-    (* Draws a picture *)
-    (* Processes the picture and draws each element *)
     let picture_to_graph (scale_factor : int) picture =
         let scaled_picture = Picture.scale (Picture.r_of_int scale_factor) picture in
         let rec helper_pic pic =

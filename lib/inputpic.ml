@@ -6,11 +6,12 @@ let display = ref false
 
 let speclist = [
   ("-n", Set_int scale, " Set scale factor (integer)");
-  ("-d", Set display, " Display the image (boolean)");
-  ("-f", String (fun f -> filename := Some f), " Filename to read from")
+  ("-d", Set display, " Display the image (boolean)")
 ]
 
-let usage_msg = "Usage: graf [-n scale] [-d] [-f filename]\n"
+let usage_msg = "Usage: graf [-n scale] [-d] [filename]\n"
+
+let set_filename fn = filename := Some fn
 
 let readPic () =
   match !filename with
@@ -22,7 +23,7 @@ let readPic () =
           read_lines (acc ^ line ^ "\n")
         with End_of_file -> close_in ic; acc
       in
-      read_lines "", !scale
+      read_lines ""
   | None -> 
       let rec read_stdin acc =
         try
@@ -30,4 +31,4 @@ let readPic () =
           read_stdin (acc ^ line ^ "\n")
         with End_of_file -> acc
       in
-      read_stdin "", !scale
+      read_stdin ""

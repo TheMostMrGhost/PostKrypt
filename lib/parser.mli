@@ -14,6 +14,4 @@ val process_string_tokens : string list -> float list
 val get_stack : state -> float list
 val get_current_picture : state -> Picture.picture
 
-(* TODO: just for debugging *)
 val token_to_string : token -> string
-

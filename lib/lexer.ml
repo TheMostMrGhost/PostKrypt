@@ -1,6 +1,6 @@
 open Picture
 
-type arithmetic_operation = 
+type arithmetic_operation =
     | Add
     | Sub
     | Mul
@@ -47,60 +47,57 @@ let add_path_to_picture path picture =
         | Picture.Vector v :: rest -> add_points_to_picture rest (Picture.add_to_picture (Vector v) picture)
         | Picture.Empty :: rest -> add_points_to_picture rest picture
     in
-    match path.start_point with
-    | Some start_point -> add_points_to_picture (Picture.point_to_pic start_point :: path.points) picture
-    | None -> add_points_to_picture path.points picture
+    add_points_to_picture path.points picture
 
 let flush_path state =
-if state.current_point = None then raise (Failure "No current point") else
-    match state.current_path.start_point with
-    | None -> state
-    | Some start_point ->
-    let new_path = {
-        state.current_path with 
-        points = match state.current_point with
-            | Some point -> Picture.vec_to_pic (Picture.make_vec point start_point) :: state.current_path.points  (* Append new point *)
-            | None -> raise (Failure "No current point")
-        (* points = (Vector  ):: state.current_path.points  (* Append new point *) *)
-    } in
-  let new_picture = add_path_to_picture new_path state.current_picture in
-  { 
-    stack = (match state.stack with | _::tl -> tl | [] -> []);
-    current_point = state.current_path.start_point;
-    current_path = {points = []; start_point = state.current_path.start_point}; 
-    current_picture = Picture.(state.current_picture +++ new_picture)
-  }
+    if state.current_point = None then raise (Failure "No current point") else
+        match state.current_path.start_point with
+        | None -> state
+        | Some start_point ->
+            let new_path = {
+                state.current_path with
+                points = match state.current_point with
+                    | Some point -> Picture.vec_to_pic (Picture.make_vec point start_point) :: state.current_path.points
+                    | None -> raise (Failure "No current point")
+            } in
+            let new_picture = add_path_to_picture new_path state.current_picture in
+            {
+                stack = state.stack;
+                current_point = state.current_path.start_point;
+                current_path = {points = []; start_point = state.current_path.start_point};
+                current_picture = new_picture
+            }
 
 let apply op state =
     match op with
-    | Arithmetic_op Add -> 
+    | Arithmetic_op Add ->
         let stack = state.stack in
         let new_stack = (List.hd stack) +. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
         { state with stack = new_stack }
-    | Arithmetic_op Sub -> 
+    | Arithmetic_op Sub ->
         let stack = state.stack in
         let new_stack = (List.hd stack) -. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
         { state with stack = new_stack }
-    | Arithmetic_op Mul -> 
+    | Arithmetic_op Mul ->
         let stack = state.stack in
         let new_stack = (List.hd stack) *. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
         { state with stack = new_stack }
-    | Arithmetic_op Div -> 
+    | Arithmetic_op Div ->
         let stack = state.stack in
         let new_stack = match List.hd (List.tl stack) with
             | 0.0 -> raise (Failure "Division by zero")
             | _ -> (List.hd stack) /. (List.hd (List.tl stack)) :: (List.tl (List.tl stack)) in
         { state with stack = new_stack }
-    | Move_to -> 
+    | Move_to ->
         let x, y = match state.stack with
             | x :: y :: _ -> x, y
             | _ -> raise (Failure "Not enough elements in stack")
         in
         let new_point = Picture.make_point x y in
-        { stack = List.tl (List.tl state.stack); 
-            current_point = Some (new_point);  
+        { stack = List.tl (List.tl state.stack);
+            current_point = Some (new_point);
+            current_picture = add_path_to_picture state.current_path state.current_picture;
             current_path = {points = []; start_point = Some new_point};
-            current_picture =Picture.(state.current_picture +++ add_path_to_picture state.current_path state.current_picture)
         }
     | Line_to ->
         let x, y = match state.stack with
@@ -109,32 +106,38 @@ let apply op state =
         in
         let new_point = Picture.make_point x y in
         let new_path = {
-            state.current_path with 
+            state.current_path with
             points = match state.current_point with
                 | Some point -> Picture.vec_to_pic (Picture.make_vec point new_point) :: state.current_path.points  (* Append new point *)
                 | None -> raise (Failure "No current point")
             (* points = (Vector  ):: state.current_path.points  (* Append new point *) *)
         } in
-        { state with 
-            stack = List.tl (List.tl state.stack); 
+        { state with
+            stack = List.tl (List.tl state.stack);
             current_path = new_path;
             current_point = Some new_point;
         }
     | Close_path ->
         flush_path state
-    | Rotate -> { state with 
-        stack = List.tl state.stack;
-        current_picture = Transform.transform (Transform.rotate (Picture.make_r (List.hd state.stack))) state.current_picture
-    }
-    | Translate -> { state with 
-        stack = List.tl (List.tl state.stack);
-        current_picture = match state.current_point with
-            | Some point -> Transform.transform (Transform.translate
-                (Picture.make_vec point (Picture.make_point (List.hd
-                    state.stack) (List.hd (List.tl state.stack)))))
-                state.current_picture
+    | Rotate ->
+        let flushed_state = flush_path state in  (* First, flush the current state *)
+        let rotation_angle = Picture.make_r (List.hd flushed_state.stack) in
+        let rotated_picture = Transform.transform (Transform.rotate rotation_angle) flushed_state.current_picture in
+        { flushed_state with
+            stack = List.tl flushed_state.stack;
+            current_picture = rotated_picture
+        }
+    | Translate ->
+        let flushed_state = flush_path state in  (* First, flush the current state *)
+        let translation_vector = match flushed_state.current_point with
+            | Some point -> Picture.make_vec point (Picture.make_point (List.hd flushed_state.stack) (List.hd (List.tl flushed_state.stack)))
             | None -> raise (Failure "No current point")
-    }
+        in
+        let translated_picture = Transform.transform (Transform.translate translation_vector) flushed_state.current_picture in
+        { flushed_state with
+            stack = List.tl (List.tl flushed_state.stack);
+            current_picture = translated_picture
+        }
 
 
 let push elem stack = { stack with stack = elem :: stack.stack }

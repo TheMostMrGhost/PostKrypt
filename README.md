@@ -65,16 +65,17 @@ showpage
 is `gs <file_name>`.
 
 # Usage example
-## Basic usage
+Basic examples (good and bad ones) are in the folder `examples`.
+
 The program accepts a set of operations and numbers and based on them creates a drawing in the PostScript format.
 The output is delivered to `stdout`. The output should then be displayed using
 a PostScript reader, like [ghostscript](https://www.ghostscript.com/).
 Assuming that you have a file `input.in`, containing valid set of commands, you can use it as
 ```bash
-cat input.in | ./_build/default/bin/main.exe > my_out.out 
+cat examples/good03.in | ./_build/default/bin/main.exe > my_out.out 
 gs my_out.out
 ```
-where an example `input.in` file might look like this
+where an example `examples/good03.in` file might look like this
 ```postscript
 0 0 moveto
 0 100 lineto
@@ -86,10 +87,34 @@ closepath
 You can also type commands directly into the programme.
 Instead of piping, you can use `-f <filename>` flag to load the file directly. The above example wouod look like 
 ```bash
-./_build/default/bin/main.exe -f input.in > my_out.out 
+./_build/default/bin/main.exe -f examples/good03.in > my_out.out 
 ```
+Additional flag `-d` allows for displaying the picture direcly, instead of writing it to a file.
+To scale a picture by an integer number use flag `-n <number>`.
+
+## Commands
+Below are listed commands accepted by the program (separated by whitespace).
+Most of them are operations which require argument. 
+Number of arguments is written next to the operation. All arguments are of type `float`.
+Arguments are taken from the stack and result is
+put back on it (postfix order of operations).
+Graphical operations do not add anything to the stack, but modify the resulting picture instead.
+If the stack has lesser number of elements than required, the program throws an error.
+
+**IMPORTANT**: Drawing requires setting a current position (it is not set at the beginning). This can be done via `moveto` command.
+Drawing without current position set up results in an error, except for `closepath` operation (which does nothing in such case).
+
+- numbers (float)
+- arithmetic operators
+    - `add`, `[2]`
+    - `sub`, `[2]`
+    - `mul`, `[2]`
+    - `div`, `[2]`
+- `moveto`, `[2]`. Starts a new path.
+- `lineto`, `[2]`
+- `translate`, `[2]`
+- `rotate`, `[1]`
+- `closepath`, `[0]`. Draws line to the beginning of the current path, adds it
+to the picture and creates new, empty path.
 
 
-Additional flag `-g` allows for displaying the picture direcly.
-
-### Commands

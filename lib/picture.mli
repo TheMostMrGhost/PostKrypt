@@ -1,4 +1,3 @@
-(* Interface for the Picture module *)
 module Picture : sig
     type r 
     type r2
@@ -48,12 +47,7 @@ module Transform : sig
 end
 
 module Graph : sig
-  (* Draws a single point at (x, y) *)
   val draw_point : float -> float -> unit
-
-  (* Draws a line (vector) from (x1, y1) to (x2, y2) *)
   val draw_vector : (float * float) * (float * float) -> unit
-
-  (* Processes the picture and draws each element *)
   val picture_to_graph : int -> Picture.picture -> unit
 end

@@ -39,7 +39,7 @@ module Transform : sig
     val translate : Picture.vec -> transform
     val rotate : Picture.r -> transform
     (* Val for a full circle rotation, in degrees. *)
-    val fullCircle : Picture.r
+    val full_circle : Picture.r
 
     (* Application of transformations *)
     val trpoint : transform -> Picture.point -> Picture.point

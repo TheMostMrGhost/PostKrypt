@@ -4,13 +4,13 @@ open Str
 
 let parse_string_to_tokens input =
   let words = Str.split (regexp "[ \t\n\r]+") input in
-  List.map Lib.Lexer.parse_token (List.filter (fun s -> s <> "") words)
+  List.map Lib.Parser.parse_token (List.filter (fun s -> s <> "") words)
 
 let () =
   Arg.parse speclist (fun _ -> ()) usage_msg;
   let input_data, scale = readPic () in
   let tokens = parse_string_to_tokens input_data in
-  let picture = Lib.Lexer.get_current_picture (Lib.Lexer.process_tokens tokens) in
+  let picture = Lib.Parser.get_current_picture (Lib.Parser.process_tokens tokens) in
 
   if !display then begin
     Graphics.open_graph "";  (* Open a graphics window *)

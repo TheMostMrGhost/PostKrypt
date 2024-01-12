@@ -84,7 +84,7 @@ module Picture = struct
 end
 
 module Transform = struct
-    let fullCircle = 360.
+    let full_circle = 360.
     open Picture
 
     type simple_transform = 
@@ -106,9 +106,9 @@ module Transform = struct
 
     let rotate_apply p angle =
         let (x, y) = p in
-        (x *. cos (angle /. fullCircle *. 2. *. Float.pi) -. y *. sin (angle /.
-            fullCircle *. 2. *. Float.pi), x *. sin (angle /. fullCircle *. 2.
-                *. Float.pi) +. y *. cos (angle /. fullCircle *. 2. *.
+        (x *. cos (angle /. full_circle *. 2. *. Float.pi) -. y *. sin (angle /.
+            full_circle *. 2. *. Float.pi), x *. sin (angle /. full_circle *. 2.
+                *. Float.pi) +. y *. cos (angle /. full_circle *. 2. *.
                 Float.pi))
 
     let translate_apply p (v : vec) : point =

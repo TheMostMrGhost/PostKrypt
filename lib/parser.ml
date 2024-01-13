@@ -176,6 +176,7 @@ let process_string_tokens string_tokens =
     let tokens = List.map parse_token string_tokens in
     get_stack (process_tokens tokens)
 
+(* TODO: delete in an actual implementation *)
 let token_to_string token =
     match token with
     | Operation (Arithmetic_op Add) ->  "add"

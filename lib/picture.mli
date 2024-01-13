@@ -8,6 +8,8 @@ module Picture : sig
         | Vector of vec 
         | Point of point
     type picture
+    type intLine = (int * int) * (int * int)
+    type intRendering = intLine list
 
     val ( +| ) : point -> point -> point
     val ( *| ) : r -> point -> point
@@ -27,6 +29,8 @@ module Picture : sig
     val point_to_pic : point -> pic
     val vec_to_pic : vec -> pic
     val picture_to_postscript : int -> picture -> string
+    val baloon : picture
+    val renderScaled : int -> picture -> intRendering
 end
 
 module Transform : sig

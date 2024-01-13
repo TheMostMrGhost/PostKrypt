@@ -8,6 +8,8 @@ module Picture = struct
         | Vector of vec 
         | Point of point
     type picture = pic list
+    type intLine = (int * int) * (int * int)
+    type intRendering = intLine list
 
     let ( +| ) (x1, y1) (x2, y2) = (x1 +. x2, y1 +. y2)
     let ( -| ) (x1, y1) (x2, y2) = (x1 -. x2, y1 -. y2)
@@ -28,12 +30,10 @@ module Picture = struct
     let line (x1, y1) (x2, y2) = [Vector ((x1, y1), (x2, y2))]
 
     let rectangle width height = 
-        let halfWidth = width /. 2. in
-        let halfHeight = height /. 2. in
-        let p1 = (-.halfWidth, -.halfHeight) in
-        let p2 = (halfWidth, -.halfHeight) in
-        let p3 = (halfWidth, halfHeight) in
-        let p4 = (-.halfWidth, halfHeight) in
+        let p1 = (0., 0.) in
+        let p2 = (width, 0.) in
+        let p3 = (width, height) in
+        let p4 = (0., height) in
         let l1 = line p1 p2 in
         let l2 = line p2 p3 in
         let l3 = line p3 p4 in
@@ -81,6 +81,22 @@ module Picture = struct
         in
         Printf.sprintf "%%!PS\n300 400 translate\n%sstroke showpage\n%%EOF" (helper_pic scaled_picture)
 
+    let baloon = rectangle 100. 100. +++ line (-100., 100.) (0., 0.)
+
+    let renderScaled scale pict =
+        let scale = r_of_int scale in
+        List.fold_right (fun pic acc -> 
+            match pic with
+            | Empty -> acc
+            | Vector ((x1, y1), (x2, y2)) -> 
+                let scaled_line = ((int_of_float (scale *. x1), int_of_float (scale *. y1)), 
+                    (int_of_float (scale *. x2), int_of_float (scale *. y2))) in
+                scaled_line :: acc
+            | Point (x, y) -> 
+                let scaled_point = ((int_of_float (scale *. x), int_of_float (scale *. y)), 
+                    (int_of_float (scale *. x), int_of_float (scale *. y))) in
+                scaled_point :: acc
+        ) pict []
 end
 
 module Transform = struct

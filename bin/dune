@@ -1,5 +1,4 @@
 (executable
- (name main)
- (public_name PostKrypt.main)
- (libraries PostKrypt.lib str)
- )
+  (name graf)
+  (public_name graf)
+  (libraries PostKrypt.lib str))

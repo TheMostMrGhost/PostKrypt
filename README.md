@@ -72,7 +72,7 @@ The output is delivered to `stdout`. The output should then be displayed using
 a PostScript reader, like [ghostscript](https://www.ghostscript.com/).
 Assuming that you have a file `input.in`, containing valid set of commands, you can use it as
 ```bash
-cat examples/good03.in | ./_build/default/bin/main.exe > my_out.out 
+cat examples/good03.in | ./_build/default/bin/graf.exe > my_out.out 
 gs my_out.out
 ```
 where an example `examples/good03.in` file might look like this
@@ -87,7 +87,7 @@ closepath
 You can also type commands directly into the programme.
 Instead of piping, you can use `-f <filename>` flag to load the file directly. The above example wouod look like 
 ```bash
-./_build/default/bin/main.exe -f examples/good03.in > my_out.out 
+./_build/default/bin/graf.exe -f examples/good03.in > my_out.out 
 ```
 Additional flag `-d` allows for displaying the picture direcly, instead of writing it to a file.
 To scale a picture by an integer number use flag `-n <number>`.

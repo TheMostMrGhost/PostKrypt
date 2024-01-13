@@ -57,7 +57,7 @@ let flush_path state =
             let new_path = {
                 state.current_path with
                 points = match state.current_point with
-                    | Some point -> Picture.vec_to_pic (Picture.make_vec point start_point) :: state.current_path.points
+                    | Some point -> Picture.pic_of_vec (Picture.make_vec point start_point) :: state.current_path.points
                     | None -> raise (Failure "No current point")
             } in
             let new_picture = add_path_to_picture new_path state.current_picture in
@@ -97,7 +97,7 @@ let apply op state =
         { stack = List.tl (List.tl state.stack);
             current_point = Some (new_point);
             current_picture = add_path_to_picture state.current_path state.current_picture;
-            current_path = {points = []; start_point = Some new_point};
+            current_path = { points = []; start_point = Some new_point };
         }
     | Line_to ->
         let x, y = match state.stack with
@@ -108,7 +108,7 @@ let apply op state =
         let new_path = {
             state.current_path with
             points = match state.current_point with
-                | Some point -> Picture.vec_to_pic (Picture.make_vec point new_point) :: state.current_path.points  (* Append new point *)
+                | Some point -> Picture.pic_of_vec (Picture.make_vec point new_point) :: state.current_path.points
                 | None -> raise (Failure "No current point")
         } in
         { state with
@@ -176,7 +176,6 @@ let process_string_tokens string_tokens =
     let tokens = List.map parse_token string_tokens in
     get_stack (process_tokens tokens)
 
-(* TODO: delete in an actual implementation *)
 let token_to_string token =
     match token with
     | Operation (Arithmetic_op Add) ->  "add"

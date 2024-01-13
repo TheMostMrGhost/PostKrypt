@@ -20,12 +20,16 @@ let () =
             Graph.picture_to_graph !scale picture;
             ignore (Graphics.read_key ());
             Graphics.close_graph ();
-            end else
-            print_endline (Picture.picture_to_postscript !scale picture);
+            end 
+        else
+            let sc = Picture.r_of_int !scale in
+            let sc_pic = (Picture.scale sc picture) in
+            print_endline (Picture.string_of_picture sc_pic);
     with
         | Failure _ ->
         if !display then begin
             Printf.eprintf "Error: Invalid input or processing failed.\n";
             exit 1
-        end else
+            end 
+        else
             print_endline "/Courier findfont 24 scalefont setfont 0 0 moveto (Error) show"

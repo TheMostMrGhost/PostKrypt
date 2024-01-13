@@ -70,9 +70,9 @@ Basic examples (good and bad ones) are in the folder `examples`.
 The program accepts a set of operations and numbers and based on them creates a drawing in the PostScript format.
 The output is delivered to `stdout`. The output should then be displayed using
 a PostScript reader, like [ghostscript](https://www.ghostscript.com/).
-Assuming that you have a file `input.in`, containing valid set of commands, you can use it as
+Assuming that you have a file `good03.in`, containing valid set of commands, you can use it as
 ```bash
-cat examples/good03.in | ./_build/default/bin/graf.exe > my_out.out 
+cat examples/good03.in | ./_build/install/default/bin/graf > my_out.out 
 gs my_out.out
 ```
 where an example `examples/good03.in` file might look like this
@@ -83,12 +83,8 @@ where an example `examples/good03.in` file might look like this
 100 0 lineto
 closepath
 ```
-<!-- TODO: sample picture-->
 You can also type commands directly into the programme.
-Instead of piping, you can use `-f <filename>` flag to load the file directly. The above example wouod look like 
-```bash
-./_build/default/bin/graf.exe -f examples/good03.in > my_out.out 
-```
+If a filename is provided as the last argument, commands are loaded from the file instead of `stdin`.
 Additional flag `-d` allows for displaying the picture direcly, instead of writing it to a file.
 To scale a picture by an integer number use flag `-n <number>`.
 
@@ -101,8 +97,10 @@ put back on it (postfix order of operations).
 Graphical operations do not add anything to the stack, but modify the resulting picture instead.
 If the stack has lesser number of elements than required, the program throws an error.
 
-**IMPORTANT**: Drawing requires setting a current position (it is not set at the beginning). This can be done via `moveto` command.
-Drawing without current position set up results in an error, except for `closepath` operation (which does nothing in such case).
+**IMPORTANT**: Drawing requires setting a current position (it is not set at
+the beginning). This can be done via `moveto` command.
+Drawing without current position set up results in an error, except for
+`closepath` operation (which does nothing in such case).
 
 - numbers (float)
 - arithmetic operators
@@ -116,5 +114,3 @@ Drawing without current position set up results in an error, except for `closepa
 - `rotate`, `[1]`
 - `closepath`, `[0]`. Draws line to the beginning of the current path, adds it
 to the picture and creates new, empty path.
-
-

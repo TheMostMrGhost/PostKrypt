@@ -15,7 +15,6 @@ module Picture : sig
     val ( *| ) : r -> point -> point
     val string_of_pic : pic -> string
     val string_of_picture : picture -> string
-    val string_of_point : point -> string
     val line : point -> point -> picture
     val rectangle : r -> r -> picture
     val (+++) : picture -> picture -> picture
@@ -26,8 +25,8 @@ module Picture : sig
     val r_of_int : int -> r
     val empty : picture
     val add_to_picture : pic -> picture -> picture
-    val point_to_pic : point -> pic
-    val vec_to_pic : vec -> pic
+    val pic_of_point : point -> pic
+    val pic_of_vec : vec -> pic
     val picture_to_postscript : int -> picture -> string
     val baloon : picture
     val renderScaled : int -> picture -> intRendering

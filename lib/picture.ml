@@ -17,15 +17,15 @@ module Picture = struct
 
     let string_of_pic x = match x with
         | Empty -> ""
-        | Vector ((x1, y1), (x2, y2)) -> Printf.sprintf "Vector ((%f, %f), (%f, %f))" x1 y1 x2 y2
-        | Point (x, y) -> Printf.sprintf "Point (%f, %f)" x y
+        | Vector ((x1, y1), (x2, y2)) -> Printf.sprintf "%f %f moveto %f %f lineto\n" x1 y1 x2 y2
+        | Point (x, y) -> Printf.sprintf "%f %f moveto\n" x y
 
-    let string_of_point x = match x with
-        | (x, y) -> Printf.sprintf "(%f, %f)" x y
+    let concat_strings x =
+        List.fold_left (fun acc x -> acc ^ x) "" x
 
-    let string_of_picture x = match x with
-        | [] -> "[]"
-        | hd :: tl -> "[" ^ (string_of_pic hd) ^ (List.fold_left (fun acc x -> acc ^ "; " ^ (string_of_pic x)) "" tl) ^ "]"
+    let string_of_picture x = 
+        let res_str = concat_strings (List.map string_of_pic x) in
+        Printf.sprintf "%%!PS\n300 400 translate\n%sstroke showpage\n%%EOF" res_str
 
     let line (x1, y1) (x2, y2) = [Vector ((x1, y1), (x2, y2))]
 
@@ -49,40 +49,28 @@ module Picture = struct
     ) pic
 
     let make_point (x : float) (y : float) : point = (x, y)
+
     let make_vec (start_x, start_y) (end_x, end_y) = ((start_x, start_y), (end_x, end_y))
+
     let make_r (x : float) : r = x
+
     let r_of_int (x : int) : r = float_of_int x
 
-    let point_to_pic pt = Point pt
-    let vec_to_pic vec = Vector vec
+    let pic_of_point pt = Point pt
+
+    let pic_of_vec vec = Vector vec
 
     let empty = []
 
     let add_to_picture pic picture = pic :: picture
 
-    let vector_to_postscript (x1, y1) (x2, y2) =
-        Printf.sprintf "%f %f moveto %f %f lineto\n" x1 y1 x2 y2
-
-    let point_to_postscript (x, y) =
-        Printf.sprintf "%f %f moveto\n" x y
-
     let picture_to_postscript (scale_factor : int) picture =
         let scaled_picture = scale (r_of_int scale_factor) picture in
-        let rec helper_pic pic =
-            match pic with
-            | [] -> ""
-            | hd :: tl -> 
-                let command_string = match hd with
-                    | Empty -> ""
-                    | Vector ((x1, y1), (x2, y2)) -> vector_to_postscript (x1, y1) (x2, y2)
-                    | Point (x, y) -> point_to_postscript (x, y)
-                in
-                command_string ^ helper_pic tl
-        in
-        Printf.sprintf "%%!PS\n300 400 translate\n%sstroke showpage\n%%EOF" (helper_pic scaled_picture)
+            string_of_picture scaled_picture
 
-    let baloon = rectangle 100. 100. +++ line (-100., 100.) (0., 0.)
+    let baloon = rectangle 100. 100. +++ line (-100., -100.) (0., 0.)
 
+    (* Rendering on grid instead of floats. *)
     let renderScaled scale pict =
         let scale = r_of_int scale in
         List.fold_right (fun pic acc -> 
@@ -167,8 +155,8 @@ end
 open Graphics
 
 module Graph = struct
-    let ref_x = 300
-    let ref_y = 400
+    let ref_x = 600
+    let ref_y = 500
 
     let draw_point (x : float) (y : float) : unit =
         let ix = int_of_float x in

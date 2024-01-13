@@ -1,5 +1,6 @@
 open Picture
 
+(* Module responsible for parsing and processing the tokens. *)
 type operation
 type stack
 type token

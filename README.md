@@ -10,9 +10,10 @@ academic year 2023/2024.
 - `ocaml` toolkit, can be found [here](https://opam.ocaml.org/doc/Install.html)
 - `dune` build system. [Dune](https://dune.build/)
 - local copy of the project
+- `libX11` and `libXext`. Can be installed via package manager of your Linux distribution.
 
 ## Setup
-1. Navigate to the main folder.
+1. Navigate to the main folder and run `opam init`.
 2. Install necessary dependencies via
 ```bash
 opam install graphics
